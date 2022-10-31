@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:habit_tracker/UI/views/start_up/widget/habits.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:stacked/stacked.dart';
@@ -40,17 +41,19 @@ class _StartUpViewState extends State<StartUpView> {
                         padding: EdgeInsets.zero,
                         itemCount: model.habitList.length,
                         itemBuilder: ((context, index) => Habit(
-                              HabitName: model.habitList[index].id.toString(),
+                              habitName: model.habitList[index].name,
                               onTap: (() {
                                 model.habitstared(index);
                               }),
                               settingsTapped: (() async {
-                                //model.settingsOpened(index, context);
-                                await model.DeleteDog(index);
+                                model.settingsOpened(index, context);
+                                // await model.DeleteHabit(index);
                               }),
                               habitStarted: model.inttobool(index),
                               timeSpent: model.habitList[index].spent,
+                              delete: (() => model.DeleteHabit(index)),
                               timeGoal: model.habitList[index].goal,
+                              isDone: model.isDone,
                             )))
                     : const Center(
                         child: Text(
@@ -63,7 +66,7 @@ class _StartUpViewState extends State<StartUpView> {
                 model.addOpened(context),
               },
               backgroundColor: Colors.grey[900],
-              child: const Icon(Icons.add),
+              child: Icon(Icons.add),
             ),
           );
         });

@@ -19,6 +19,10 @@ class StartUpViewModel extends BaseViewModel {
 
   Db get dbb => _dbb;
 
+  bool _isDone = false;
+
+  bool get isDone => _isDone;
+
   //Future<Database> get database async => _database ??= await _initDatabase();
   final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
     foregroundColor: Colors.black87,
@@ -47,6 +51,7 @@ class StartUpViewModel extends BaseViewModel {
     if (_dbb != null) {
       setBusy(false);
     }
+    notifyListeners();
   }
 
   void habitstared(int index) async {
@@ -60,10 +65,15 @@ class StartUpViewModel extends BaseViewModel {
     }
 
     if (_habitlist[index].started == 1) {
-      Timer.periodic(const Duration(seconds: 1), (timer) {
+      Timer.periodic(Duration(seconds: 1), (timer) {
         if (_habitlist[index].started == 0) {
           timer.cancel();
-          updateDog(index);
+          updateHabit(index);
+          //notifyListeners();
+        } else if (_habitlist[index].spent == (_habitlist[index].goal * 60)) {
+          timer.cancel();
+          updateHabit(index);
+          _isDone = true;
         }
 
         var currenttime = DateTime.now();
@@ -71,13 +81,22 @@ class StartUpViewModel extends BaseViewModel {
             currenttime.second -
             startTime.second +
             60 * (currenttime.minute - startTime.minute);
+        notifyListeners();
       });
     }
     notifyListeners();
   }
 
-  void addhabit(String habit, int period) {
-    _habitlist.add([habit, false, 0, period]);
+  void addhabit(String name, int period) async {
+    final db = await _dbb.database;
+    habit = Habits(name: name, spent: 0, goal: period, started: 0);
+    await db.insert(
+      'Test',
+      habit!.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    _habitlist = await getHabits();
+    //_habitlist.add([habit, false, 0, period]);
     _textFieldController.clear();
     _values = 1;
     notifyListeners();
@@ -149,32 +168,36 @@ class StartUpViewModel extends BaseViewModel {
     var habits = await db.query(('Test'));
     List<Habits> habitslits =
         habits.isNotEmpty ? habits.map((e) => Habits.fromMap(e)).toList() : [];
+    notifyListeners();
     return habitslits;
   }
 
-  Future<void> insertDog(Habits dog) async {
+  Future<void> insertHabit(Habits Habit) async {
     final db = await _dbb.database;
 
     await db.insert(
       'Test',
-      dog.toMap(),
+      Habit.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    _habitlist = await getHabits();
   }
 
-  Future<void> updateDog(int index) async {
+  Future<void> updateHabit(int index) async {
     final db = await _dbb.database;
 
     await db.rawUpdate('UPDATE Test SET spent = ? WHERE id = ?',
         [_habitlist[index].spent, _habitlist[index].id]);
+    _habitlist = await getHabits();
     notifyListeners();
   }
 
   // ignore: non_constant_identifier_names
-  Future<void> DeleteDog(int index) async {
+  Future<void> DeleteHabit(int index) async {
     final db = await _dbb.database;
 
     await db.rawDelete('DELETE FROM Test WHERE id = ?', [_habitlist[index].id]);
+    _habitlist = await getHabits();
     notifyListeners();
   }
 
