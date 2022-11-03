@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
-//typedef FutureCallback = Future<void> Function();
+//typedef IntCallback = String Function(int sec);
 
 class Habit extends StatelessWidget {
   final String? habitName;
   final VoidCallback onTap;
   final AsyncCallback delete;
+  final String formatMinSec;
   final VoidCallback settingsTapped;
   final int? timeSpent;
   final int? timeGoal;
@@ -22,6 +23,7 @@ class Habit extends StatelessWidget {
       required this.settingsTapped,
       required this.timeSpent,
       required this.delete,
+      required this.formatMinSec,
       required this.timeGoal,
       required this.habitStarted,
       required this.isDone});
@@ -110,7 +112,7 @@ class Habit extends StatelessWidget {
 
                   //progress
                   Text(
-                    formatMinSec(timeSpent!) +
+                    formatMinSec +
                         '/' +
                         timeGoal.toString() +
                         ' = ' +
@@ -127,18 +129,4 @@ class Habit extends StatelessWidget {
       ),
     );
   }
-}
-
-String formatMinSec(int tsecs) {
-  String secs = (tsecs % 60).toString();
-  String mins = (tsecs / 60).toStringAsFixed(5);
-
-  if (mins[1] == ".") {
-    mins = mins.substring(0, 1);
-  }
-
-  if (secs.length == 1) {
-    secs = '0' + secs;
-  }
-  return mins + ":" + secs;
 }

@@ -39,6 +39,7 @@ class StartUpViewModel extends BaseViewModel {
   int _values = 1;
   Habits? habit;
   int get values => _values;
+  set values(int) => _values;
 
   Future<void> init() async {
     setBusy(true);
@@ -103,62 +104,10 @@ class StartUpViewModel extends BaseViewModel {
   }
 
   void settingsOpened(int index, context) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            // ignore: prefer_interpolation_to_compose_strings
-            title: Text("Settings for " + _habitlist[index].name),
-          );
-        });
     notifyListeners();
   }
 
   void addOpened(context) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Add Habit'),
-              content: Container(
-                height: 400,
-                width: 150,
-                child: Column(children: [
-                  TextField(
-                    onChanged: (value) {},
-                    controller: _textFieldController,
-                    decoration:
-                        const InputDecoration(hintText: "Text Field in Dialog"),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  NumberPicker(
-                    value: _values,
-                    minValue: 1,
-                    maxValue: 60,
-                    step: 1,
-                    //haptics: true,
-                    onChanged: (value) => setState(() => _values = value),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  ElevatedButton(
-                    style: raisedButtonStyle,
-                    onPressed: () {
-                      addhabit(_textFieldController.text, _values);
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Add Habit'),
-                  )
-                ]),
-              ),
-            );
-          });
-        });
-
     notifyListeners();
   }
 
@@ -207,5 +156,19 @@ class StartUpViewModel extends BaseViewModel {
     } else {
       return true;
     }
+  }
+
+  String formatMinSec(int tsecs) {
+    String secs = (tsecs % 60).toString();
+    String mins = (tsecs / 60).toStringAsFixed(5);
+
+    if (mins[1] == ".") {
+      mins = mins.substring(0, 1);
+    }
+
+    if (secs.length == 1) {
+      secs = '0' + secs;
+    }
+    return mins + ":" + secs;
   }
 }

@@ -1,5 +1,6 @@
 # habit_tracker
-In this project i worked with stacked , sqflite and path provider ! 
+
+A new Flutter project.
 
 ## Getting Started
 

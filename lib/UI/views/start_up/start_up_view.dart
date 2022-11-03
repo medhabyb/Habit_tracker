@@ -46,12 +46,23 @@ class _StartUpViewState extends State<StartUpView> {
                                 model.habitstared(index);
                               }),
                               settingsTapped: (() async {
-                                model.settingsOpened(index, context);
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        // ignore: prefer_interpolation_to_compose_strings
+                                        title: Text("Settings for " +
+                                            model.habitList[index].name),
+                                      );
+                                    });
+                                ;
                                 // await model.DeleteHabit(index);
                               }),
                               habitStarted: model.inttobool(index),
                               timeSpent: model.habitList[index].spent,
                               delete: (() => model.DeleteHabit(index)),
+                              formatMinSec: model
+                                  .formatMinSec(model.habitList[index].spent),
                               timeGoal: model.habitList[index].goal,
                               isDone: model.isDone,
                             )))
@@ -63,7 +74,51 @@ class _StartUpViewState extends State<StartUpView> {
                       )),
             floatingActionButton: FloatingActionButton(
               onPressed: () => {
-                model.addOpened(context),
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return StatefulBuilder(builder: (context, setState) {
+                        return AlertDialog(
+                          title: const Text('Add Habit'),
+                          content: Container(
+                            height: 400,
+                            width: 150,
+                            child: Column(children: [
+                              TextField(
+                                onChanged: (value) {},
+                                controller: model.textFieldController,
+                                decoration: const InputDecoration(
+                                    hintText: "Text Field in Dialog"),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              NumberPicker(
+                                value: model.values,
+                                minValue: 1,
+                                maxValue: 60,
+                                step: 1,
+                                //haptics: true,
+                                onChanged: (value) =>
+                                    setState(() => model.values = value),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              ElevatedButton(
+                                style: model.raisedButtonStyle,
+                                onPressed: () {
+                                  model.addhabit(model.textFieldController.text,
+                                      model.values);
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Add Habit'),
+                              )
+                            ]),
+                          ),
+                        );
+                      });
+                    }),
               },
               backgroundColor: Colors.grey[900],
               child: Icon(Icons.add),
